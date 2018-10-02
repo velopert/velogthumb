@@ -8,6 +8,10 @@ plugins:
   - serverless-apigw-binary
   
 custom:
+  webpack:
+    includeModules: true
+      forceExclude:
+        - sharp
   apigwBinary:
     types:
       - '*/*'
