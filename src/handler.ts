@@ -6,9 +6,9 @@ import * as mimeTypes from 'mime-types';
 import * as fs from 'fs';
 import { Stream } from 'stream';
 import * as sizeOf from 'image-size';
+import etag from 'etag';
 
 export const resize: Handler = async (event: APIGatewayEvent, context: Context, cb: Callback) => {
-  console.log(JSON.stringify(event, null, 2));
   // Check parameters
   const { url, width: widthRaw } = event.queryStringParameters;
   if (!url || !widthRaw) {
@@ -59,6 +59,7 @@ export const resize: Handler = async (event: APIGatewayEvent, context: Context, 
     });
 
     const size = await sizeOf(filename);
+    console.log(response.headers);
     if (size.width <= width) {
       // return original
       return {
@@ -66,7 +67,10 @@ export const resize: Handler = async (event: APIGatewayEvent, context: Context, 
         body: buffer.toString('base64'),
         isBase64Encoded: true,
         headers: {
-          'content-type': response.headers['content-type']
+          'content-type': response.headers['content-type'],
+          'last-modified': response.headers['last-modified'],
+          date: response.headers['date'],
+          ETag: response.headers['etag']
         }
       };
     }
@@ -79,18 +83,18 @@ export const resize: Handler = async (event: APIGatewayEvent, context: Context, 
       .resize(nextSize.width, nextSize.height)
       .toFormat(extension === 'jpg' ? 'jpeg' : extension)
       .toBuffer();
+
+    const ETag = etag(resized);
     return {
       statusCode: 200,
       body: resized.toString('base64'),
       headers: {
-        'content-type': response.headers['content-type']
+        'content-type': response.headers['content-type'],
+        'last-modified': response.headers['last-modified'],
+        date: response.headers['date'],
+        ETag
       },
       isBase64Encoded: true
-    };
-
-    return {
-      statusCode: 200,
-      body: JSON.stringify(nextSize)
     };
   } catch (e) {
     console.log(e);

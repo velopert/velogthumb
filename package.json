@@ -11,6 +11,7 @@
     "@types/image-size": "^0.0.29",
     "@types/mime-types": "^2.1.0",
     "axios": "^0.18.0",
+    "etag": "^1.8.1",
     "image-size": "^0.6.3",
     "mime-types": "^2.1.20",
     "node-loader": "^0.6.0",
