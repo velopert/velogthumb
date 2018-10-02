@@ -9,7 +9,7 @@ plugins:
   
 custom:
   webpack:
-    includeModules: true
+    includeModules:
       forceExclude:
         - sharp
   apigwBinary:
