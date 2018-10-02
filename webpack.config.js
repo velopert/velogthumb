@@ -38,5 +38,5 @@ module.exports = {
       { test: /\.tsx?$/, loader: 'ts-loader' }
     ]
   },
-  externals: nodeModules
+  externals: 'sharp'
 };
