@@ -14,6 +14,8 @@ export const resize: Handler = async (event: APIGatewayEvent, context: Context, 
   console.log('Request Headers:');
   console.log(event.headers);
   const ifNoneMatch = event.headers['If-None-Match'];
+  const ifModifiedSince = event.headers['If-Modified-Since'];
+
   if (!url || !widthRaw) {
     return {
       statusCode: 400,
@@ -62,6 +64,19 @@ export const resize: Handler = async (event: APIGatewayEvent, context: Context, 
     });
 
     const size = await sizeOf(filename);
+
+    if (ifModifiedSince) {
+      const date = new Date(ifModifiedSince);
+      const currentDate = new Date(response.headers['last-modified']);
+      if (currentDate <= date) {
+        return {
+          statusCode: 304,
+          headers: {
+            ETag: ifNoneMatch
+          }
+        };
+      }
+    }
     console.log('Response Headers:');
     console.log(response.headers);
     if (size.width <= width) {
@@ -73,7 +88,6 @@ export const resize: Handler = async (event: APIGatewayEvent, context: Context, 
         headers: {
           'content-type': response.headers['content-type'],
           'Last-Modified': response.headers['last-modified'],
-          date: response.headers['date'],
           ETag: response.headers['etag'],
           'cache-control': 'max-age=86400'
         }
