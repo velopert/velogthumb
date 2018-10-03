@@ -13,6 +13,7 @@ export const resize: Handler = async (event: APIGatewayEvent, context: Context, 
   const { url, width: widthRaw } = event.queryStringParameters;
   console.log('Request Headers:');
   console.log(event.headers);
+  const ifNoneMatch = event.headers['If-None-Match'];
   if (!url || !widthRaw) {
     return {
       statusCode: 400,
@@ -89,13 +90,20 @@ export const resize: Handler = async (event: APIGatewayEvent, context: Context, 
       .toBuffer();
 
     const ETag = etag(resized);
+    if (ETag === ifNoneMatch) {
+      return {
+        statusCode: 304,
+        headers: {
+          ETag
+        }
+      };
+    }
     return {
       statusCode: 200,
       body: resized.toString('base64'),
       headers: {
         'content-type': response.headers['content-type'],
         'last-modified': response.headers['last-modified'],
-        date: response.headers['date'],
         'cache-control': 'max-age=86400',
         ETag
       },
