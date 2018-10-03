@@ -7,10 +7,25 @@ import * as fs from 'fs';
 import { Stream } from 'stream';
 import * as sizeOf from 'image-size';
 import etag from 'etag';
+import * as URL from 'url';
 
 export const resize: Handler = async (event: APIGatewayEvent, context: Context, cb: Callback) => {
   // Check parameters
   const { url, width: widthRaw } = event.queryStringParameters;
+
+  const urlParts = URL.parse(url);
+
+  const allowedHosts = ['images.velog.io'];
+  if (!allowedHosts.includes(urlParts.host)) {
+    return {
+      statusCode: 400,
+      body: JSON.stringify({
+        error: {
+          name: 'NOT_ALLOWED_HOST'
+        }
+      })
+    };
+  }
 
   if (!url || !widthRaw) {
     return {
