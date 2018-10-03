@@ -11,6 +11,7 @@ import etag from 'etag';
 export const resize: Handler = async (event: APIGatewayEvent, context: Context, cb: Callback) => {
   // Check parameters
   const { url, width: widthRaw } = event.queryStringParameters;
+  console.log(event.headers);
   if (!url || !widthRaw) {
     return {
       statusCode: 400,
@@ -68,7 +69,7 @@ export const resize: Handler = async (event: APIGatewayEvent, context: Context, 
         isBase64Encoded: true,
         headers: {
           'content-type': response.headers['content-type'],
-          'last-modified': response.headers['last-modified'],
+          'Last-Modified': response.headers['last-modified'],
           date: response.headers['date'],
           ETag: response.headers['etag'],
           'cache-control': 'max-age=86400'
