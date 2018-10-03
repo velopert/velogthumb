@@ -2,13 +2,6 @@ const path = require('path');
 const slsw = require('serverless-webpack');
 const fs = require('fs');
 
-const nodeModules = {};
-fs.readdirSync('node_modules')
-  .filter(item => ['.bin'].indexOf(item) === -1) // exclude the .bin folder
-  .forEach(mod => {
-    nodeModules[mod] = 'commonjs ' + mod;
-  });
-
 const entries = {};
 
 Object.keys(slsw.lib.entries).forEach(
