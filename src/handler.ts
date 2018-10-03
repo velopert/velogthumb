@@ -11,6 +11,7 @@ import etag from 'etag';
 export const resize: Handler = async (event: APIGatewayEvent, context: Context, cb: Callback) => {
   // Check parameters
   const { url, width: widthRaw } = event.queryStringParameters;
+  console.log('Request Headers:');
   console.log(event.headers);
   if (!url || !widthRaw) {
     return {
@@ -60,6 +61,7 @@ export const resize: Handler = async (event: APIGatewayEvent, context: Context, 
     });
 
     const size = await sizeOf(filename);
+    console.log('Response Headers:');
     console.log(response.headers);
     if (size.width <= width) {
       // return original
