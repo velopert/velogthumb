@@ -70,7 +70,8 @@ export const resize: Handler = async (event: APIGatewayEvent, context: Context, 
           'content-type': response.headers['content-type'],
           'last-modified': response.headers['last-modified'],
           date: response.headers['date'],
-          ETag: response.headers['etag']
+          ETag: response.headers['etag'],
+          'cache-control': 'max-age=86400'
         }
       };
     }
@@ -92,6 +93,7 @@ export const resize: Handler = async (event: APIGatewayEvent, context: Context, 
         'content-type': response.headers['content-type'],
         'last-modified': response.headers['last-modified'],
         date: response.headers['date'],
+        'cache-control': 'max-age=86400',
         ETag
       },
       isBase64Encoded: true
