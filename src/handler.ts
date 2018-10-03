@@ -65,18 +65,18 @@ export const resize: Handler = async (event: APIGatewayEvent, context: Context, 
 
     const size = await sizeOf(filename);
 
-    if (ifModifiedSince) {
-      const date = new Date(ifModifiedSince);
-      const currentDate = new Date(response.headers['last-modified']);
-      if (currentDate <= date) {
-        return {
-          statusCode: 304,
-          headers: {
-            ETag: ifNoneMatch
-          }
-        };
-      }
-    }
+    // if (ifModifiedSince) {
+    //   const date = new Date(ifModifiedSince);
+    //   const currentDate = new Date(response.headers['last-modified']);
+    //   if (currentDate <= date) {
+    //     return {
+    //       statusCode: 304,
+    //       headers: {
+    //         ETag: ifNoneMatch
+    //       }
+    //     };
+    //   }
+    // }
     console.log('Response Headers:');
     console.log(response.headers);
     if (size.width <= width) {
@@ -104,14 +104,14 @@ export const resize: Handler = async (event: APIGatewayEvent, context: Context, 
       .toBuffer();
 
     const ETag = etag(resized);
-    if (ETag === ifNoneMatch) {
-      return {
-        statusCode: 304,
-        headers: {
-          ETag
-        }
-      };
-    }
+    // if (ETag === ifNoneMatch) {
+    //   return {
+    //     statusCode: 304,
+    //     headers: {
+    //       ETag
+    //     }
+    //   };
+    // }
     return {
       statusCode: 200,
       body: resized.toString('base64'),
