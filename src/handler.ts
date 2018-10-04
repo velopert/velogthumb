@@ -85,7 +85,7 @@ export const resize: Handler = async (event: APIGatewayEvent, context: Context, 
           'content-type': response.headers['content-type'],
           'Last-Modified': response.headers['last-modified'],
           ETag: response.headers['etag'],
-          'cache-control': 'max-age=86400'
+          'cache-control': 'max-age=604800'
         }
       };
     }
@@ -106,7 +106,7 @@ export const resize: Handler = async (event: APIGatewayEvent, context: Context, 
       headers: {
         'content-type': response.headers['content-type'],
         'last-modified': response.headers['last-modified'],
-        'cache-control': 'max-age=86400',
+        'cache-control': 'max-age=604800',
         ETag
       },
       isBase64Encoded: true
