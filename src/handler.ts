@@ -96,7 +96,7 @@ export const resize: Handler = async (event: APIGatewayEvent, context: Context, 
 
     const resized = await sharp(buffer)
       .resize(nextSize.width, nextSize.height)
-      .toFormat(extension === 'jpg' ? 'jpeg' : extension)
+      .toFormat('jpeg')
       .toBuffer();
 
     const ETag = etag(resized);
@@ -104,7 +104,7 @@ export const resize: Handler = async (event: APIGatewayEvent, context: Context, 
       statusCode: 200,
       body: resized.toString('base64'),
       headers: {
-        'content-type': response.headers['content-type'],
+        'content-type': 'image/jpeg',
         'last-modified': response.headers['last-modified'],
         'cache-control': 'max-age=604800',
         ETag
