@@ -95,7 +95,7 @@ export const resize: Handler = async (event: APIGatewayEvent, context: Context, 
     };
 
     const resized = await sharp(buffer)
-      .background({ r: 255, g: 255, b: 255, alpha: 255 })
+      .background({ r: 255, g: 255, b: 255, alpha: 1 })
       .resize(nextSize.width, nextSize.height)
       .toFormat('jpeg')
       .toBuffer();
