@@ -52,7 +52,9 @@ export const resize: Handler = async (event: APIGatewayEvent, context: Context, 
 
     // save file
     const extension = mimeTypes.extension(response.headers['content-type']) as string;
-    const filename = `/tmp/image-${Date.now()}.${extension}`;
+    const filename = `/tmp/image-${Date.now()}${Math.random()
+      .toString(36)
+      .substring(7)}.${extension}`;
     const { data } = response;
     const stream = fs.createWriteStream(filename);
     data.pipe(stream);
