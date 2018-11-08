@@ -97,11 +97,8 @@ export const resize: Handler = async (event: APIGatewayEvent, context: Context, 
     };
 
     const resized = await sharp(buffer)
-      .flatten()
-      .embed()
-      .background({ r: 255, g: 255, b: 255, alpha: 1 })
       .resize(nextSize.width, nextSize.height)
-      .toFormat('jpeg')
+      .toFormat('png')
       .toBuffer();
 
     const ETag = etag(resized);
@@ -109,7 +106,7 @@ export const resize: Handler = async (event: APIGatewayEvent, context: Context, 
       statusCode: 200,
       body: resized.toString('base64'),
       headers: {
-        'content-type': 'image/jpeg',
+        'content-type': 'image/png',
         'last-modified': response.headers['last-modified'],
         'cache-control': 'max-age=604800',
         ETag
