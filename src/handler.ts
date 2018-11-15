@@ -46,7 +46,7 @@ export const resize: Handler = async (event: APIGatewayEvent, context: Context, 
   }
 
   try {
-    const response = await axios.get<Stream>(url, {
+    const response = await axios.get<Stream>(encodeURI(url), {
       responseType: 'stream'
     });
 
