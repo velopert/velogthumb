@@ -46,75 +46,87 @@ export const resize: Handler = async (event: APIGatewayEvent, context: Context, 
   }
 
   try {
-    const response = await axios.get<Stream>(encodeURI(url), {
-      responseType: 'stream'
+    const response = await axios.get<any>(encodeURI(url), {
+      responseType: 'arraybuffer'
     });
 
-    // save file
-    const extension = mimeTypes.extension(response.headers['content-type']) as string;
-    const filename = `/tmp/image-${Date.now()}${Math.random()
-      .toString(36)
-      .substring(7)}.${extension}`;
-    const { data } = response;
-    const stream = fs.createWriteStream(filename);
-    data.pipe(stream);
-    await new Promise((resolve, reject) => {
-      data.on('end', () => {
-        resolve();
-      });
-      data.on('error', () => {
-        reject();
-      });
-    });
-    const buffer = await new Promise<Buffer>((resolve, reject) => {
-      fs.readFile(filename, (err, data) => {
-        if (err) {
-          reject(err);
-          return;
-        }
-        resolve(data);
-      });
-    });
-
-    const size = await sizeOf(filename);
-
-    // temporarily disable resizing to check the corrupted image issue
-    if (size.width <= width || true) {
-      // return original
-      return {
-        statusCode: 200,
-        body: buffer.toString('base64'),
-        isBase64Encoded: true,
-        headers: {
-          'content-type': response.headers['content-type'],
-          'Last-Modified': response.headers['last-modified'],
-          ETag: response.headers['etag'],
-          'cache-control': 'max-age=604800'
-        }
-      };
-    }
-    const nextSize = {
-      width,
-      height: Math.round((width / size.width) * size.height)
-    };
-
-    const resized = await sharp(buffer)
-      .resize(nextSize.width, nextSize.height)
-      .toFormat('png')
-      .toBuffer();
-
-    const ETag = etag(resized);
     return {
       statusCode: 200,
-      body: resized.toString('base64'),
+      body: new Buffer(response.data, 'binary').toString('base64'),
+      isBase64Encoded: true,
       headers: {
-        'content-type': 'image/png',
-        'last-modified': response.headers['last-modified'],
-        'cache-control': 'max-age=604800',
-        ETag
-      },
-      isBase64Encoded: true
+        'content-type': response.headers['content-type'],
+        'Last-Modified': response.headers['last-modified'],
+        ETag: response.headers['etag'],
+        'cache-control': 'max-age=604800'
+      }
     };
+
+    // save file
+    // const extension = mimeTypes.extension(response.headers['content-type']) as string;
+    // const filename = `/tmp/image-${Date.now()}${Math.random()
+    //   .toString(36)
+    //   .substring(7)}.${extension}`;
+    // const { data } = response;
+    // const stream = fs.createWriteStream(filename);
+    // data.pipe(stream);
+    // await new Promise((resolve, reject) => {
+    //   data.on('end', () => {
+    //     resolve();
+    //   });
+    //   data.on('error', () => {
+    //     reject();
+    //   });
+    // });
+    // const buffer = await new Promise<Buffer>((resolve, reject) => {
+    //   fs.readFile(filename, (err, data) => {
+    //     if (err) {
+    //       reject(err);
+    //       return;
+    //     }
+    //     resolve(data);
+    //   });
+    // });
+
+    // const size = await sizeOf(filename);
+
+    // // temporarily disable resizing to check the corrupted image issue
+    // if (size.width <= width || true) {
+    //   // return original
+    //   return {
+    //     statusCode: 200,
+    //     body: buffer.toString('base64'),
+    //     isBase64Encoded: true,
+    //     headers: {
+    //       'content-type': response.headers['content-type'],
+    //       'Last-Modified': response.headers['last-modified'],
+    //       ETag: response.headers['etag'],
+    //       'cache-control': 'max-age=604800'
+    //     }
+    //   };
+    // }
+    // const nextSize = {
+    //   width,
+    //   height: Math.round((width / size.width) * size.height)
+    // };
+
+    // const resized = await sharp(buffer)
+    //   .resize(nextSize.width, nextSize.height)
+    //   .toFormat('png')
+    //   .toBuffer();
+
+    // const ETag = etag(resized);
+    // return {
+    //   statusCode: 200,
+    //   body: resized.toString('base64'),
+    //   headers: {
+    //     'content-type': 'image/png',
+    //     'last-modified': response.headers['last-modified'],
+    //     'cache-control': 'max-age=604800',
+    //     ETag
+    //   },
+    //   isBase64Encoded: true
+    // };
   } catch (e) {
     console.log(e);
     return {
