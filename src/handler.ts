@@ -50,83 +50,47 @@ export const resize: Handler = async (event: APIGatewayEvent, context: Context, 
       responseType: 'arraybuffer'
     });
 
-    return {
-      statusCode: 200,
-      body: new Buffer(response.data, 'binary').toString('base64'),
-      isBase64Encoded: true,
-      headers: {
-        'content-type': response.headers['content-type'],
-        'Last-Modified': response.headers['last-modified'],
-        ETag: response.headers['etag'],
-        'cache-control': 'max-age=604800'
-      }
+    const buffer = new Buffer(response.data, 'binary');
+
+    const size = await sizeOf(buffer);
+
+    if (size.width <= width) {
+      // return original
+      return {
+        statusCode: 200,
+        body: buffer.toString('base64'),
+        isBase64Encoded: true,
+        headers: {
+          'content-type': response.headers['content-type'],
+          'Last-Modified': response.headers['last-modified'],
+          ETag: response.headers['etag'],
+          'cache-control': 'max-age=604800'
+        }
+      };
+    }
+
+    const nextSize = {
+      width,
+      height: Math.round((width / size.width) * size.height)
     };
 
-    // save file
-    // const extension = mimeTypes.extension(response.headers['content-type']) as string;
-    // const filename = `/tmp/image-${Date.now()}${Math.random()
-    //   .toString(36)
-    //   .substring(7)}.${extension}`;
-    // const { data } = response;
-    // const stream = fs.createWriteStream(filename);
-    // data.pipe(stream);
-    // await new Promise((resolve, reject) => {
-    //   data.on('end', () => {
-    //     resolve();
-    //   });
-    //   data.on('error', () => {
-    //     reject();
-    //   });
-    // });
-    // const buffer = await new Promise<Buffer>((resolve, reject) => {
-    //   fs.readFile(filename, (err, data) => {
-    //     if (err) {
-    //       reject(err);
-    //       return;
-    //     }
-    //     resolve(data);
-    //   });
-    // });
+    const resized = await sharp(buffer)
+      .resize(nextSize.width, nextSize.height)
+      .toFormat('png')
+      .toBuffer();
 
-    // const size = await sizeOf(filename);
-
-    // // temporarily disable resizing to check the corrupted image issue
-    // if (size.width <= width || true) {
-    //   // return original
-    //   return {
-    //     statusCode: 200,
-    //     body: buffer.toString('base64'),
-    //     isBase64Encoded: true,
-    //     headers: {
-    //       'content-type': response.headers['content-type'],
-    //       'Last-Modified': response.headers['last-modified'],
-    //       ETag: response.headers['etag'],
-    //       'cache-control': 'max-age=604800'
-    //     }
-    //   };
-    // }
-    // const nextSize = {
-    //   width,
-    //   height: Math.round((width / size.width) * size.height)
-    // };
-
-    // const resized = await sharp(buffer)
-    //   .resize(nextSize.width, nextSize.height)
-    //   .toFormat('png')
-    //   .toBuffer();
-
-    // const ETag = etag(resized);
-    // return {
-    //   statusCode: 200,
-    //   body: resized.toString('base64'),
-    //   headers: {
-    //     'content-type': 'image/png',
-    //     'last-modified': response.headers['last-modified'],
-    //     'cache-control': 'max-age=604800',
-    //     ETag
-    //   },
-    //   isBase64Encoded: true
-    // };
+    const ETag = etag(resized);
+    return {
+      statusCode: 200,
+      body: resized.toString('base64'),
+      headers: {
+        'content-type': 'image/png',
+        'last-modified': response.headers['last-modified'],
+        'cache-control': 'max-age=604800',
+        ETag
+      },
+      isBase64Encoded: true
+    };
   } catch (e) {
     console.log(e);
     return {

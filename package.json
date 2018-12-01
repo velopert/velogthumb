@@ -4,7 +4,7 @@
   "description": "Serverless webpack example using Typescript",
   "main": "handler.js",
   "scripts": {
-    "dev": "sls offline",
+    "dev": "sls offline --port 5000",
     "test": "echo \"Error: no test specified\" && exit 1",
     "deploy": "sls deploy"
   },
