@@ -77,7 +77,9 @@ export const resize: Handler = async (event: APIGatewayEvent, context: Context, 
     });
 
     const size = await sizeOf(filename);
-    if (size.width <= width) {
+
+    // temporarily disable resizing to check the corrupted image issue
+    if (size.width <= width || true) {
       // return original
       return {
         statusCode: 200,
